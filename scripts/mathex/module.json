@@ -1,0 +1,9 @@
+{
+    "schema_version": 1,
+    "package_name": "mathex",
+    "package_version": "1.4.0B",
+    "package_description": "Math extension functions for RPL++"
+    "package_authors": ["nishiowo"],
+    "package_license": "SPDX-License-Identifier: MIT",
+    "entry": "mathex.rpl"
+}
