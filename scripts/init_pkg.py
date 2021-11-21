@@ -1,20 +1,19 @@
 import os
+import json
 
-def ginput(msg, default):
-    n = input(msg)
-    if (n == '' or n == ' '):
-        return default
-    else:
-        return n
+package = json.loads('{"schema_version": 1,"name": "MathEx","description": "Extension to the RPL++ math library","dependencies": [],"entry": "MathEx.rpl","js_module": "","author": "NishiOwO","version": "1.4.0C"}')
 
-print('RPL++ package init utility script - use latest from rpkg/scripts/init_pkg.py!')
-name = input('What is the package called? ')
-if os.path.exists(name) and os.path.isdir(name):
-    print('error: directory already exists')
-    exit(-1)
-version = ginput('What is the package version? [1.0.0] ', '1.0.0')
-description = ginput('What is the package description? [] ', '')
-authors = ginput('What is the package author? [rpkg] ', 'rpkg')
-pl = ginput('What is the SPDX identifier of the license? [MIT] ', 'MIT')
-entry = ginput('What is the entry point of the 
-
+print('rpkg: action create_package started')
+print('rpkg: create_package: creating initial directory structure')
+if os.path.exists(package['name']) and os.path.isdir(package['name']):
+    print('rpkg: create_package: create_directory: check_if_directory_exists: directory already exists')
+else:
+    print('rpkg: create_package: create_directory: creating directory')
+    os.mkdir(package['name'])
+print('rpkg: create_package: create_module_json: creating module json')
+with open(package['name'] + '/module.json', 'w') as f:
+    f.write(json.dumps(package))
+print('rpkg: create_package: create_module_json: done')
+print('rpkg: create_package: done')
+print('rpkg: all actions complete')
+print('rpkg: done')

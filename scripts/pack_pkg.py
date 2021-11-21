@@ -1,0 +1,91 @@
+import os
+import json
+import shutil
+import hashlib
+
+print('rpkg: task pack_pkg initiated')
+print('rpkg: load_package: loading package from file')
+pkg_name = 'MathEx'
+
+package = {}
+
+with open(pkg_name + '/module.json', 'r') as f:
+    package = json.loads(f.read())
+
+print('rpkg: load_package: done')
+print('rpkg: creating work directory')
+print('rpkg: make_temp_dir: making temporary directory')
+if os.path.exists('./work/') and os.path.isdir('./work/'):
+    shutil.rmtree('./work/')
+os.mkdir('./work/')
+os.mkdir('./work/rif/')
+os.mkdir('./work/rij/')
+print('rpkg: make_temp_dor: done')
+print('rpkg: pack_pkg: packing .rpl scripts into packed_rpl.rif')
+print('rpkg: pack_pkg: pack_rif: compressing')
+for root, dirs, files in os.walk(pkg_name):
+    for file in files:
+        if file.endswith('.rpl'):
+            path = os.path.join(root, file)
+            print('rpkg: pack_pkg: pack_rif: pack_rpl: packing', file)
+            print('rpkg: pack_pkg: pack_rif: pack_' + file + ': compressing')
+            os.system('gzip -c ' + path + ' > ./work/rif/' + file + 'c')
+            print('rpkg: pack_pkg: pack_rif: pack_' + file + ': done')
+os.system('gzip -c ./work/rif/*.rplc > ./work/packed_rpl.rif')
+shutil.rmtree('./work/rif/')
+print('rpkg: pack_pkg: pack_rif: done')
+print('rpkg: pack_pkg: packing .js addons into packed_js.rij')
+print('rpkg: pack_pkg: pack_rij: compressing')
+for root, dirs, files in os.walk(pkg_name):
+    for file in files:
+        if file.endswith('.js'):
+            path = os.path.join(root, file)
+            print('rpkg: pack_pkg: pack_rij: pack_js: packing', file)
+            print('rpkg: pack_pkg: pack_rij: pack_' + file + ': compressing')
+            os.system('gzip -c ' + path + ' > ./work/rij/' + file + 'c')
+            print('rpkg: pack_pkg: pack_rij: pack_' + file + ': done')
+os.system('gzip -c ./work/rij/*.jsc > ./work/packed_js.rij')
+shutil.rmtree('./work/rij/')
+print('rpkg: pack_pkg: pack_rij: done')
+print('rpkg: pack_pkg: packing .rxx files into pkg_code.prl')
+print('rpkg: pack_pkg: pack_prl: compressing')
+if os.path.exists('./work/packed_rpl.rif') and os.path.exists('./work/packed_js.rij'):
+    os.system('gzip -c ./work/packed_rpl.rif ./work/packed_js.rij > ./work/pkg_code.prl')
+    os.unlink('./work/packed_rpl.rif')
+    os.unlink('./work/packed_js.rij')
+elif os.path.exists('./work/packed_rpl.rif'):
+    os.system('gzip -c ./work/packed_rpl.rif > ./work/pkg_code.prl')
+    os.unlink('./work/packed_rpk.rif')
+elif os.path.exists('./work/packed_js.rij'):
+    print('error: invalid package! a package cannot contain only js')
+    exit(-1)
+print('rpkg: pack_pkg: pack_prl: done')
+print('rpkg: pack_pkg: getting checksum and putting it into .SHASUM')
+shasum = ''
+print('rpkg: pack_pkg: shasum: calculating shasum')
+with open('./work/pkg_code.prl', 'rb') as packed_code:
+    shasum = hashlib.sha256(packed_code.read()).hexdigest()
+print('rpkg: pack_pkg: shasum: writing shasum')
+with open('./work/.SHASUM', 'w') as f:
+    f.write(shasum)
+print('rpkg: pack_pkg: shasum: verifying written shasum')
+with open('./work/.SHASUM', 'r') as f:
+    shasum = f.read()
+with open('./work/pkg_code.prl', 'rb') as packed_code:
+    tshasum = hashlib.sha256(packed_code.read()).hexdigest()
+    if (tshasum != shasum):
+        print('fail: hash verification failed: hash in SHASUM (' + shasum + ') does not match actual shasum ' + tshasum)
+        exit(-1)
+    else:
+        print('rpkg: pack_pkg: shasum: verified shasum successfully')
+print('rpkg: pack_pkg: shasum: done')
+print('rpkg: pack_pkg: packing into rbp')
+print('rpkg: pack_pkg: pack_rbp: compressing')
+os.system('gzip -c ./work/pkg_code.prl ./work/.SHASUM ' + pkg_name + '/module.json > ' + pkg_name + '.rbp')
+os.unlink('./work/.SHASUM')
+os.unlink('./work/pkg_code.prl')
+shutil.rmtree('./work/')
+print('rpkg: pack_pkg: pack_rbp: done')
+print('rpkg: pack_pkg: done')
+print('rpkg: all tasks finished')
+print('rpkg: done')
