@@ -59,7 +59,11 @@ else:
         if version['version'] == ver:
             ver = version
     print('rpkg: install_pkg: using version', ver['version'])
-
+file_size = int(urlopen(url).info().get('Content-Length', -1))
+print('After this action, an additional ' + format_bytes(file_size) + ' will be used. Do you want to continue? [Y/n] ')
+if input().lower() == 'n':
+    print('Aborting')
+    exit(-1)
 print('rpkg: install_pkg: downloading packed image')
 SOURCE_URL = 'https://rpkg-index.c0repwn3r.repl.co/source/' + pkg + '/' + ver['version']
 DWL_URI = INSTALL_DIR + '/' + pkg + '-' + ver['version'] + '.rbp'
@@ -70,6 +74,17 @@ if not os.path.exists(os.path.expanduser('~') + '/.rpkg/packages/'):
 os.mkdir(INSTALL_DIR)
 import requests
 from tqdm import tqdm
+
+def format_bytes(size):
+    # 2**10 = 1024
+    power = 2**10
+    n = 0
+    power_labels = {0 : '', 1: 'kilo', 2: 'mega', 3: 'giga', 4: 'tera'}
+    while size > power:
+        size /= power
+        n += 1
+    return size, power_labels[n]+'bytes'
+
 
 def download_from_url(url, dst):
     file_size = int(urlopen(url).info().get('Content-Length', -1))
