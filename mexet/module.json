@@ -1,0 +1,1 @@
+{"schema_version": 1, "name": "MathEx", "description": "Extension to the RPL++ math library", "dependencies": [], "entry": "MathEx.rpl", "js_module": "test.js", "author": "NishiOwO", "version": "1.4.0C"}
