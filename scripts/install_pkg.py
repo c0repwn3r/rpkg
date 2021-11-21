@@ -60,8 +60,8 @@ else:
     print('rpkg: install_pkg: using version', ver['version'])
 
 print('rpkg: install_pkg: downloading packed image')
-SOURCE_URL = 'https://rpkg-index.c0repwn3r.repl.co/source/' + pkg + '/' + ver
-DWL_URI = INSTALL_DIR + '/' + pkg + '-' + ver + '.rbp'
+SOURCE_URL = 'https://rpkg-index.c0repwn3r.repl.co/source/' + pkg + '/' + ver['version']
+DWL_URI = INSTALL_DIR + '/' + pkg + '-' + ver['version'] + '.rbp'
 if os.path.exists(INSTALL_DIR):
     shutil.rmtree(INSTALL_DIR)
 os.mkdir(INSTALL_DIR)
