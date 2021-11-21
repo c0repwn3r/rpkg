@@ -108,7 +108,13 @@ def download_from_url(url, dst):
 
 download_from_url(SOURCE_URL, DWL_URI)
 
-print('rpkg: install_pkg: downloaded, unpacking')
+print('rpkg: install_pkg: downloaded, verifying')
+shasum = ver['shasum']
+with open(DWL_URI, 'rb') as f:
+    rshasum = hashlib.sha256(f.read()).hexdigest()
+    if rshasum != shasum:
+        print('fail: package checksum (' + rshasum + ') does not match expected shasum', shasum)
+        exit(-1)
 
 print('rpkg: starting task unpack_pkg')
 
