@@ -64,12 +64,14 @@ SOURCE_URL = 'https://rpkg-index.c0repwn3r.repl.co/source/' + pkg + '/' + ver['v
 DWL_URI = INSTALL_DIR + '/' + pkg + '-' + ver['version'] + '.rbp'
 if os.path.exists(INSTALL_DIR):
     shutil.rmtree(INSTALL_DIR)
+if not os.path.exists(os.path.expanduser('~') + '/.rpkg/packages/'):
+    os.mkdir(os.path.expanduser('~') + '/.rpkg/packages/')
 os.mkdir(INSTALL_DIR)
 import requests
 from tqdm import tqdm
 
 def download_from_url(url, dst):
-    file_size = int(urlopen(url).info().get('Content-Length', -1))
+    file_size = int(requests.head(url).headers["Content-Length"])
     if os.path.exists(dst):
         first_byte = os.path.getsize(dst)
     else:
