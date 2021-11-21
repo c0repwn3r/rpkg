@@ -6,6 +6,7 @@ import requests
 from tqdm import tqdm
 import glob
 import pathlib
+from urllib.request import urlopen
 
 print('rpkg: task install_pkg started')
 
@@ -71,7 +72,7 @@ import requests
 from tqdm import tqdm
 
 def download_from_url(url, dst):
-    file_size = int(requests.head(url).headers["Content-Length"])
+    file_size = int(urlopen(url).info().get('Content-Length', -1))
     if os.path.exists(dst):
         first_byte = os.path.getsize(dst)
     else:
