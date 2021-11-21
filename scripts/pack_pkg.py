@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 import hashlib
+import glob
 
 print('rpkg: task pack_pkg initiated')
 print('rpkg: load_package: loading package from file')
@@ -31,8 +32,12 @@ for root, dirs, files in os.walk(pkg_name):
             print('rpkg: pack_pkg: pack_rif: pack_' + file + ': compressing')
             os.system('gzip -c ' + path + ' > ./work/rif/' + file + 'c')
             print('rpkg: pack_pkg: pack_rif: pack_' + file + ': done')
-os.system('gzip -c ./work/rif/*.rplc > ./work/packed_rpl.rif')
+for file in glob.glob(r'./work/rif/*.rplc'):
+    shutil.copy(file, '.')
+os.system('tar czvf ./work/packed_rpl.rif ./*.rplc')
 shutil.rmtree('./work/rif/')
+for file in glob.glob(r'./*.rplc'):
+    os.unlink(file)
 print('rpkg: pack_pkg: pack_rif: done')
 print('rpkg: pack_pkg: packing .js addons into packed_js.rij')
 print('rpkg: pack_pkg: pack_rij: compressing')
@@ -44,18 +49,28 @@ for root, dirs, files in os.walk(pkg_name):
             print('rpkg: pack_pkg: pack_rij: pack_' + file + ': compressing')
             os.system('gzip -c ' + path + ' > ./work/rij/' + file + 'c')
             print('rpkg: pack_pkg: pack_rij: pack_' + file + ': done')
-os.system('gzip -c ./work/rij/*.jsc > ./work/packed_js.rij')
+for file in glob.glob(r'./work/rij/*.jsc'):
+    shutil.copy(file, '.')
+os.system('tar czvf ./work/packed_js.rij ./work/rij/*.jsc')
 shutil.rmtree('./work/rij/')
+for file in glob.glob(r'./*.jsc'):
+    os.unlink(file)
 print('rpkg: pack_pkg: pack_rij: done')
 print('rpkg: pack_pkg: packing .rxx files into pkg_code.prl')
 print('rpkg: pack_pkg: pack_prl: compressing')
 if os.path.exists('./work/packed_rpl.rif') and os.path.exists('./work/packed_js.rij'):
-    os.system('gzip -c ./work/packed_rpl.rif ./work/packed_js.rij > ./work/pkg_code.prl')
+    shutil.copy('./work/packed_rpl.rif', '.')
+    shutil.copy('./work/packed_js.rij', '.')
+    os.system('tar czvf ./work/pkg_code.prl ./packed_rpl.rif ./packed_js.rij')
     os.unlink('./work/packed_rpl.rif')
     os.unlink('./work/packed_js.rij')
+    os.unlink('./packed_rpl.rif')
+    os.unlink('./packed_js.rij')
 elif os.path.exists('./work/packed_rpl.rif'):
-    os.system('gzip -c ./work/packed_rpl.rif > ./work/pkg_code.prl')
+    shutil.copy('./work/packed_rpl.rif', '.')
+    os.system('tar czvf ./work/pkg_code.prl ./work/packed_rpl.rif')
     os.unlink('./work/packed_rpk.rif')
+    os.unlink('./packed_rpl.rif')
 elif os.path.exists('./work/packed_js.rij'):
     print('error: invalid package! a package cannot contain only js')
     exit(-1)
@@ -81,9 +96,16 @@ with open('./work/pkg_code.prl', 'rb') as packed_code:
 print('rpkg: pack_pkg: shasum: done')
 print('rpkg: pack_pkg: packing into rbp')
 print('rpkg: pack_pkg: pack_rbp: compressing')
-os.system('gzip -c ./work/pkg_code.prl ./work/.SHASUM ' + pkg_name + '/module.json > ' + pkg_name + '.rbp')
+shutil.copy('./work/pkg_code.prl', '.')
+shutil.copy('./work/.SHASUM', '.')
+shutil.copy(pkg_name + '/module.json', '.')
+os.system('tar czvf ' + pkg_name + '.rbp ./pkg_code.prl ./.SHASUM ./module.json')
+print('./work/pkg_code.prl ./work/.SHASUM ' + pkg_name + '/module.json')
 os.unlink('./work/.SHASUM')
 os.unlink('./work/pkg_code.prl')
+os.unlink('./pkg_code.prl')
+os.unlink('./.SHASUM')
+os.unlink('./module.json')
 shutil.rmtree('./work/')
 print('rpkg: pack_pkg: pack_rbp: done')
 print('rpkg: pack_pkg: done')
